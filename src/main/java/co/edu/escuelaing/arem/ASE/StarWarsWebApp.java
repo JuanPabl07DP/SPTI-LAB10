@@ -75,7 +75,7 @@ public class StarWarsWebApp {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(port), DEFAULT_BACKLOG);
             server.createContext("/", StarWarsWebApp::handleRequest);
-            server.setExecutor(null); // Usar el ejecutor por defecto
+            server.setExecutor(null);
             server.start();
             logger.info("Servidor iniciado en el puerto " + port);
         } catch (IOException e) {
@@ -91,6 +91,7 @@ public class StarWarsWebApp {
         try {
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
+            logger.info("Recibida petición: " + method + " " + path);
 
             if ("GET".equals(method)) {
                 handleGetRequest(exchange, path);
@@ -109,15 +110,15 @@ public class StarWarsWebApp {
      * Maneja las peticiones GET
      */
     private static void handleGetRequest(HttpExchange exchange, String path) throws IOException {
+        // Primero intentamos rutas dinámicas
         String response = handleDynamicRoute(path);
         if (response != null) {
             sendResponse(exchange, response);
             return;
         }
 
-        response = serveStaticFile(path);
-        if (response != null) {
-            sendResponse(exchange, response);
+        // Luego intentamos servir archivos estáticos
+        if (serveStaticFile(exchange, path)) {
             return;
         }
 
@@ -171,15 +172,32 @@ public class StarWarsWebApp {
     /**
      * Sirve archivos estáticos
      */
-    private static String serveStaticFile(String path) {
+    private static boolean serveStaticFile(HttpExchange exchange, String path) {
         try {
-            // Si la ruta es /, servir index.html
-            path = path.equals("/") ? "/public/index.html" : path;
+            path = path.equals("/") ? "/index.html" : path;
             Path filePath = Path.of(staticFilesPath + path);
-            return Files.readString(filePath);
+
+            logger.info("Intentando servir archivo: " + filePath);
+
+            if (!Files.exists(filePath)) {
+                logger.warning("Archivo no encontrado: " + filePath);
+                return false;
+            }
+
+            byte[] fileBytes = Files.readAllBytes(filePath);
+            String contentType = getContentType(path);
+
+            logger.info("Sirviendo archivo: " + path + " con Content-Type: " + contentType);
+
+            exchange.getResponseHeaders().set("Content-Type", contentType);
+            exchange.sendResponseHeaders(200, fileBytes.length);
+            exchange.getResponseBody().write(fileBytes);
+            exchange.getResponseBody().close();
+            return true;
+
         } catch (IOException e) {
-            logger.warning("Archivo no encontrado: " + path);
-            return null;
+            logger.log(Level.WARNING, "Error al servir archivo: " + path, e);
+            return false;
         }
     }
 
@@ -191,6 +209,7 @@ public class StarWarsWebApp {
         exchange.getResponseHeaders().set("Content-Type", getContentType(exchange.getRequestURI().getPath()));
         exchange.sendResponseHeaders(200, responseBytes.length);
         exchange.getResponseBody().write(responseBytes);
+        exchange.getResponseBody().close();
     }
 
     /**
@@ -202,20 +221,21 @@ public class StarWarsWebApp {
         byte[] responseBytes = response.getBytes();
         exchange.sendResponseHeaders(500, responseBytes.length);
         exchange.getResponseBody().write(responseBytes);
+        exchange.getResponseBody().close();
     }
 
     /**
      * Envía una respuesta 404 Not Found
      */
     private static void sendNotFoundResponse(HttpExchange exchange) throws IOException {
-        exchange.sendResponseHeaders(404, 0);
+        exchange.sendResponseHeaders(404, -1);
     }
 
     /**
      * Envía una respuesta 405 Method Not Allowed
      */
     private static void sendMethodNotAllowedResponse(HttpExchange exchange) throws IOException {
-        exchange.sendResponseHeaders(405, 0);
+        exchange.sendResponseHeaders(405, -1);
     }
 
     /**
@@ -229,6 +249,9 @@ public class StarWarsWebApp {
         if (path.endsWith(".png")) return "image/png";
         if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
         if (path.endsWith(".webp")) return "image/webp";
+        if (path.endsWith(".gif")) return "image/gif";
+        if (path.endsWith(".svg")) return "image/svg+xml";
+        if (path.endsWith(".ico")) return "image/x-icon";
         return "text/plain";
     }
 }
