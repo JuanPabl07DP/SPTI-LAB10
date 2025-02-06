@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Wars - Películas</title>
+    <link rel="stylesheet" href="styles/peliculas.css">
+</head>
+<body>
+<main class="main-container">
+    <section class="rectangle-container">
+        <div class="white-rectangle">
+            <h1 class="star-wars-title">PELÍCULA CONSULTADA</h1>
+            <div id="movie-details" class="movie-details"></div>
+        </div>
+    </section>
+
+    <section class="search-section">
+        <div class="input-container">
+            <h2 class="star-wars-subtitle">CONSULTE SU PELÍCULA AQUÍ</h2>
+            <input type="number" id="movie-input" class="star-wars-input"
+                   placeholder="INGRESE EL NÚMERO" min="1" max="6">
+            <button class="star-wars-button">BUSCAR</button>
+        </div>
+
+        <div class="movies-list-title">
+            <h2 class="star-wars-list-title">PELÍCULAS CONSULTADAS</h2>
+        </div>
+    </section>
+</main>
+
+<div class="logo-container">
+    <img src="img/logo.jpeg" alt="Logo" class="logo">
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
