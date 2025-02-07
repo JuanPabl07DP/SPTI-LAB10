@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -21,6 +22,27 @@ public class StarWarsWebApp {
     private static final Logger logger = Logger.getLogger(StarWarsWebApp.class.getName());
     private static final int DEFAULT_BACKLOG = 0;
     private static String staticFilesPath = "target/classes/public";
+
+    public static byte[] getStaticFile(String path) throws IOException, URISyntaxException {
+        try {
+            Path filePath = Path.of(staticFilesPath + path);
+
+            logger.info("Intentando servir archivo: " + filePath);
+
+            if (!Files.exists(filePath)) {
+                logger.warning("Archivo no encontrado: " + filePath);
+                return null;
+            }
+
+            byte[] fileBytes = Files.readAllBytes(filePath);
+            logger.info("Sirviendo archivo: " + path);
+            return fileBytes;
+
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Error al servir archivo: " + path, e);
+            throw e;
+        }
+    }
 
     @FunctionalInterface
     interface HttpHandler {
