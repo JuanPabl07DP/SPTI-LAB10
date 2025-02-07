@@ -1,4 +1,6 @@
 # **Star Wars Movie API - Taller 2 AREP**
+![](img/img.png)
+![](img/img_1.png)
 ## 📌 Descripción
 ## 🚀 Tecnologías Utilizadas
 
@@ -18,7 +20,11 @@
 
 1. El usuario ingresa el ID del episodio de Star Wars en la interfaz web.
 
-2. La a aplicación realiza una solicitud a la API de SWAPI para obtener los datos de la película correspondiente.
+![](img/img_2.png)
+
+![](img/img_3.png)
+
+2. La aplicación realiza una solicitud a la API de SWAPI para obtener los datos de la película correspondiente.
 
 3. La información obtenida es procesada y mostrada en la interfaz de usuario de forma clara y estructurada.
 
@@ -51,6 +57,14 @@ Abre tu navegador y dirígete a:
 http://localhost:8080/
 ```
 
+## 🌟 Ejecución de pruebas
+
+Para ejecutar las pruebas, corra el siguiente comando:
+
+```
+mvn test
+```
+
 ## 🔗 Endpoints Disponibles
 
 -  ```GET /movie/{id}``` → Devuelve información sobre la película correspondiente al episodio indicado.
@@ -64,6 +78,6 @@ http://localhost:8080/
 - **Error de conexión:** Verifica tu conexión a Internet y asegúrate de que la API de SWAPI está en línea.
 
 ### 📌 Autores:
-- Juan Pablo Daza Pereira
+- Juan Pablo Daza Pereira (JuanPabl07DP)
 
 ### 📅 Fecha de creación: Febrero 2025
