@@ -45,26 +45,16 @@ class StarWarsApp {
             const response = await fetch(`/api/film/${movieId}`);
             const data = await response.json();
 
-            console.log('Response:', response);
-            console.log('Data:', data);
-
             if (!response.ok) {
                 throw new Error(data.error || 'Error al obtener la película');
             }
 
-            // Añadir película a la lista de consultadas si no existe
-            const existingMovie = this.consultedMovies.find(movie =>
-                movie.episodeId === data.episodeId || movie.episode_id === data.episode_id
-            );
-
-            if (!existingMovie) {
-                this.consultedMovies.push(data);
-            }
+            this.consultedMovies.push(data);
 
             this.displayMovie(data);
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error en searchMovie:', error);
             this.displayError(error.message);
         } finally {
             this.hideLoadingState();
@@ -137,7 +127,8 @@ class StarWarsApp {
 
     updateConsultedMoviesList() {
         console.log('Método updateConsultedMoviesList llamado');
-        console.log('Películas consultadas:', this.consultedMovies);
+        console.log('Número de películas consultadas:', this.consultedMovies.length);
+        console.log('Contenido de películas consultadas:', JSON.stringify(this.consultedMovies, null, 2));
 
         const consultedMoviesContainer = document.querySelector('.consulted-movies-container');
         console.log('Contenedor encontrado:', consultedMoviesContainer);
@@ -148,13 +139,20 @@ class StarWarsApp {
             return;
         }
 
-        const formattedJson = JSON.stringify(this.consultedMovies, null, 2);
-        console.log('JSON formateado:', formattedJson);
+        try {
+            // Cambiamos a un método más robusto de renderizado
+            const moviesHTML = this.consultedMovies.map((movie, index) => `
+            <div class="consulted-movie">
+                <h3>Película ${index + 1}</h3>
+                <pre class="consulted-movies-json">${JSON.stringify(movie, null, 2)}</pre>
+            </div>
+        `).join('');
 
-        consultedMoviesContainer.innerHTML = `
-        <pre class="consulted-movies-json">${formattedJson}</pre>
-    `;
-        console.log('Contenido actualizado');
+            consultedMoviesContainer.innerHTML = moviesHTML;
+            console.log('Contenido actualizado exitosamente');
+        } catch (error) {
+            console.error('Error al actualizar la lista:', error);
+        }
     }
 }
 
