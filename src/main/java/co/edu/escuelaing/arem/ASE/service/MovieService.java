@@ -1,9 +1,7 @@
 package co.edu.escuelaing.arem.ASE.service;
 
 import co.edu.escuelaing.arem.ASE.model.Movie;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
+import com.google.gson.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,139 +10,102 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.concurrent.TimeoutException;
 
-/**
- * Servicio para obtener información de películas de Star Wars
- */
 public class MovieService {
     private static final String SWAPI_URL = "https://swapi.py4e.com/api/films/";
-    private static final int TIMEOUT_SECONDS = 10;
     private static final Logger logger = Logger.getLogger(MovieService.class.getName());
-
     private final HttpClient client;
     private final Gson gson;
 
-    /**
-     * Constructor que inicializa el cliente HTTP y Gson
-     */
     public MovieService() {
         this.client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+                .connectTimeout(Duration.ofSeconds(10))
                 .build();
-        this.gson = new Gson();
+        this.gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
     }
 
-    /**
-     * Obtiene una película por su ID
-     * @param id ID de la película a buscar
-     * @return Objeto Movie con la información de la película
-     * @throws IllegalArgumentException si el ID es inválido
-     * @throws MovieNotFoundException si la película no se encuentra
-     * @throws MovieServiceException si hay un error en el servicio
-     */
     public Movie getMovieById(String id) throws MovieServiceException {
-        validateMovieId(id);
-
         try {
-            HttpRequest request = createRequest(id);
-            HttpResponse<String> response = sendRequest(request);
-            validateResponse(response);
-            return parseMovieResponse(response.body());
+            validateId(id);
+
+            // Construir la URL específica para la película
+            String url = SWAPI_URL + "?format=json";
+            logger.info("Requesting URL: " + url);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Accept", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                logger.severe("Error response from API: " + response.statusCode());
+                throw new MovieServiceException("Error del servidor: " + response.statusCode());
+            }
+
+            String responseBody = response.body();
+            logger.info("API Response: " + responseBody);
+
+            JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
+            JsonArray results = jsonResponse.getAsJsonArray("results");
+
+            int searchId = Integer.parseInt(id);
+
+            for (JsonElement element : results) {
+                JsonObject movieJson = element.getAsJsonObject();
+                if (movieJson.has("episode_id")) {
+                    int episodeId = movieJson.get("episode_id").getAsInt();
+                    logger.info("Checking episode_id: " + episodeId);
+
+                    if (episodeId == searchId) {
+                        Movie movie = gson.fromJson(movieJson, Movie.class);
+                        logger.info("Found movie: " + movie);
+                        return movie;
+                    }
+                }
+            }
+
+            logger.warning("Movie not found with episode_id: " + id);
+            throw new MovieNotFoundException("Película no encontrada");
 
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error de conexión al obtener la película", e);
-            throw new MovieServiceException("Error de conexión al obtener la película");
-
+            logger.severe("IO Error: " + e.getMessage());
+            throw new MovieServiceException("Error de conexión");
         } catch (InterruptedException e) {
-            logger.log(Level.SEVERE, "La operación fue interrumpida", e);
+            logger.severe("Request interrupted: " + e.getMessage());
             Thread.currentThread().interrupt();
-            throw new MovieServiceException("La operación fue interrumpida");
-
+            throw new MovieServiceException("La solicitud fue interrumpida");
+        } catch (JsonParseException e) {
+            logger.severe("JSON Parse error: " + e.getMessage());
+            throw new MovieServiceException("Error al procesar la respuesta");
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error inesperado al obtener la película", e);
-            throw new MovieServiceException("Error inesperado al obtener la película");
+            logger.severe("Unexpected error: " + e.getMessage());
+            throw new MovieServiceException("Error inesperado: " + e.getMessage());
         }
     }
 
-    /**
-     * Valida el ID de la película
-     */
-    private void validateMovieId(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("El ID de la película no puede estar vacío");
-        }
+    private void validateId(String id) throws MovieServiceException {
         try {
-            int movieId = Integer.parseInt(id);
-            if (movieId < 1 || movieId > 6) {
-                throw new IllegalArgumentException("El ID de la película debe estar entre 1 y 6");
+            int episodeId = Integer.parseInt(id);
+            if (episodeId < 1 || episodeId > 7) {
+                throw new MovieServiceException("El ID debe estar entre 1 y 7");
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("El ID debe ser un número válido");
-        }
-    }
-
-    /**
-     * Crea la petición HTTP
-     */
-    private HttpRequest createRequest(String id) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(SWAPI_URL + id))
-                .header("Accept", "application/json")
-                .GET()
-                .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
-                .build();
-    }
-
-    /**
-     * Envía la petición HTTP
-     */
-    private HttpResponse<String> sendRequest(HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    /**
-     * Valida la respuesta HTTP
-     */
-    private void validateResponse(HttpResponse<String> response) throws MovieServiceException {
-        if (response.statusCode() == 404) {
-            throw new MovieNotFoundException("Película no encontrada");
-        }
-        if (response.statusCode() != 200) {
-            throw new MovieServiceException("Error del servidor: " + response.statusCode());
-        }
-    }
-
-    /**
-     * Parsea la respuesta JSON a objeto Movie
-     */
-    private Movie parseMovieResponse(String json) throws MovieServiceException {
-        try {
-            Movie movie = gson.fromJson(json, Movie.class);
-            if (movie == null) {
-                throw new MovieServiceException("Error al parsear la respuesta del servidor");
-            }
-            return movie;
-        } catch (JsonSyntaxException e) {
-            logger.log(Level.SEVERE, "Error al parsear JSON", e);
-            throw new MovieServiceException("Error al parsear la respuesta del servidor");
+            throw new MovieServiceException("ID inválido");
         }
     }
 }
 
-/**
- * Excepción para errores generales del servicio
- */
 class MovieServiceException extends Exception {
     public MovieServiceException(String message) {
         super(message);
     }
 }
 
-/**
- * Excepción para película no encontrada
- */
 class MovieNotFoundException extends MovieServiceException {
     public MovieNotFoundException(String message) {
         super(message);
