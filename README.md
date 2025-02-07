@@ -70,6 +70,8 @@ Para ejecutar las pruebas, corra el siguiente comando:
 mvn test
 ```
 
+Las pruebas realizadas incluye el caso en que se hace get de un recurso como el index.html, y el servidor responde con el archivo solicitado. También se incluye los casos en que no existe el recurso solicitado
+
 ## 🔨 Arquitectura
 
 La arquitectura de la aplicación de consulta de películas de Star Wars sigue un patrón de diseño Modelo-Vista-Controlador (MVC) y utiliza una arquitectura cliente-servidor.
