@@ -28,8 +28,9 @@ public class MovieController {
             int movieId;
             try {
                 movieId = Integer.parseInt(id);
-                if (movieId < 1 || movieId > 6) {
-                    return createErrorResponse("El ID de la película debe estar entre 1 y 6");
+                // Cambiar de 1-6 a 1-7
+                if (movieId < 1 || movieId > 7) {
+                    return createErrorResponse("El ID de la película debe estar entre 1 y 7");
                 }
             } catch (NumberFormatException e) {
                 return createErrorResponse("El ID de la película debe ser un número válido");

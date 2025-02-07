@@ -147,6 +147,41 @@ body::before {
     color: #000;
 }
 
+.movies-list-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.update-list-button {
+    margin-top: 10px;
+}
+
+.consulted-movies-container {
+    width: 100%;
+    max-width: 700px;
+    min-height: 250px;
+    max-height: 255px;
+    background-color: rgba(255, 232, 31, 0.1);
+    border: 2px solid rgba(255, 232, 31, 0.3);
+    border-radius: 15px;
+    padding: 15px;
+    margin-top: 15px;
+    overflow-y: auto;  /* Añade scroll vertical si el contenido es muy largo */
+    backdrop-filter: blur(5px);
+}
+
+.consulted-movies-json {
+    color: #FFE81F;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
 .logo-container {
     position: fixed;
     bottom: clamp(10px, 3vw, 20px);

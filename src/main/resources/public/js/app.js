@@ -1,10 +1,8 @@
-/**
- * Clase principal para manejar la aplicación de Star Wars
- */
 class StarWarsApp {
     constructor() {
         this.initializeElements();
         this.initializeEventListeners();
+        this.consultedMovies = [];
     }
 
     initializeElements() {
@@ -20,6 +18,19 @@ class StarWarsApp {
                 this.searchMovie();
             }
         });
+
+        // Cambiar la selección del botón
+        const updateListButton = document.querySelector('.update-list-button');
+        console.log('Botón de actualizar lista:', updateListButton);
+
+        if (updateListButton) {
+            updateListButton.addEventListener('click', () => {
+                console.log('Botón de actualizar lista clickeado');
+                this.updateConsultedMoviesList();
+            });
+        } else {
+            console.error('No se encontró el botón de actualizar lista');
+        }
     }
 
     async searchMovie() {
@@ -39,6 +50,15 @@ class StarWarsApp {
 
             if (!response.ok) {
                 throw new Error(data.error || 'Error al obtener la película');
+            }
+
+            // Añadir película a la lista de consultadas si no existe
+            const existingMovie = this.consultedMovies.find(movie =>
+                movie.episodeId === data.episodeId || movie.episode_id === data.episode_id
+            );
+
+            if (!existingMovie) {
+                this.consultedMovies.push(data);
             }
 
             this.displayMovie(data);
@@ -114,9 +134,30 @@ class StarWarsApp {
         this.searchButton.disabled = false;
         this.movieInput.disabled = false;
     }
+
+    updateConsultedMoviesList() {
+        console.log('Método updateConsultedMoviesList llamado');
+        console.log('Películas consultadas:', this.consultedMovies);
+
+        const consultedMoviesContainer = document.querySelector('.consulted-movies-container');
+        console.log('Contenedor encontrado:', consultedMoviesContainer);
+
+        if (this.consultedMovies.length === 0) {
+            console.log('No hay películas consultadas');
+            consultedMoviesContainer.innerHTML = '<p>No se han consultado películas aún.</p>';
+            return;
+        }
+
+        const formattedJson = JSON.stringify(this.consultedMovies, null, 2);
+        console.log('JSON formateado:', formattedJson);
+
+        consultedMoviesContainer.innerHTML = `
+        <pre class="consulted-movies-json">${formattedJson}</pre>
+    `;
+        console.log('Contenido actualizado');
+    }
 }
 
-// Inicializar la aplicación cuando el DOM esté cargado
 document.addEventListener('DOMContentLoaded', () => {
     window.starWarsApp = new StarWarsApp();
     console.log('Star Wars App initialized');
