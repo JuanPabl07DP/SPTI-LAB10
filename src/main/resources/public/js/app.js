@@ -3,28 +3,18 @@
  */
 class StarWarsApp {
     constructor() {
-        // Inicializar elementos del DOM
-        this.movieInput = document.getElementById('movie-input');
-        this.movieDetails = document.getElementById('movie-details');
-        this.searchButton = document.querySelector('.star-wars-button');
-
-        // Array para almacenar las películas consultadas
-        this.consultedMovies = [];
-
-        // Inicializar eventos
+        this.initializeElements();
         this.initializeEventListeners();
     }
 
-    /**
-     * Inicializa los event listeners
-     */
-    initializeEventListeners() {
-        // Evento click del botón buscar
-        this.searchButton.addEventListener('click', () => {
-            this.searchMovie();
-        });
+    initializeElements() {
+        this.movieInput = document.getElementById('movie-input');
+        this.movieDetails = document.getElementById('movie-details');
+        this.searchButton = document.querySelector('.star-wars-button');
+    }
 
-        // Evento para el input cuando se presiona Enter
+    initializeEventListeners() {
+        this.searchButton.addEventListener('click', () => this.searchMovie());
         this.movieInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.searchMovie();
@@ -32,157 +22,102 @@ class StarWarsApp {
         });
     }
 
-    /**
-     * Método principal para buscar la película
-     */
     async searchMovie() {
-        // Obtener el valor del input
         const movieId = this.movieInput.value.trim();
 
-        // Validar el input
         if (!this.validateInput(movieId)) {
             return;
         }
 
         try {
-            // Mostrar estado de carga
             this.showLoadingState();
-
-            // Realizar la petición al servidor
             const response = await fetch(`/api/film/${movieId}`);
+            const data = await response.json();
 
-            // Verificar si la respuesta es exitosa
+            console.log('Response:', response);
+            console.log('Data:', data);
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(data.error || 'Error al obtener la película');
             }
 
-            // Obtener los datos de la película
-            const movieData = await response.json();
-
-            // Verificar si hay un error en la respuesta
-            if (movieData.error) {
-                throw new Error(movieData.error);
-            }
-
-            // Mostrar la película y agregarla a consultadas
-            this.displayMovie(movieData);
-            this.addToConsultedMovies(movieData);
+            this.displayMovie(data);
 
         } catch (error) {
-            // Manejar cualquier error que ocurra
-            this.handleError(error);
+            console.error('Error:', error);
+            this.displayError(error.message);
         } finally {
-            // Ocultar estado de carga
             this.hideLoadingState();
         }
     }
 
-    /**
-     * Valida el input del usuario
-     */
     validateInput(movieId) {
         if (!movieId) {
-            this.showError('Por favor ingrese un número de película');
+            this.displayError('Por favor ingrese un número de película');
             return false;
         }
 
         const id = parseInt(movieId);
-        if (isNaN(id) || id < 1 || id > 6) {
-            this.showError('Por favor ingrese un número válido entre 1 y 6');
+        if (isNaN(id) || id < 1 || id > 7) {
+            this.displayError('Por favor ingrese un número entre 1 y 7');
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Muestra la información de la película en el DOM
-     */
     displayMovie(movie) {
-        const formattedDate = new Date(movie.releaseDate).toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        console.log('Displaying movie:', movie);
+
+        if (!movie) {
+            this.displayError('No se pudo obtener la información de la película');
+            return;
+        }
+
+        const formattedDate = movie.releaseDate || movie.release_date || 'Fecha no disponible';
+        const formattedCrawl = movie.openingCrawl || movie.opening_crawl || '';
 
         this.movieDetails.innerHTML = `
             <div class="movie-info">
-                <h2 class="movie-title">${movie.title}</h2>
-                <div class="movie-meta">
-                    <p><strong>Episodio:</strong> ${movie.episodeId}</p>
-                    <p><strong>Director:</strong> ${movie.director}</p>
-                    <p><strong>Fecha de estreno:</strong> ${formattedDate}</p>
-                </div>
-                <div class="movie-description">
-                    <p><strong>Introducción:</strong></p>
-                    <p class="opening-crawl">${movie.openingCrawl}</p>
-                </div>
+                <h2 class="movie-title">${movie.title || 'Sin título'}</h2>
+                <p><strong>Episodio:</strong> ${movie.episodeId || movie.episode_id || 'N/A'}</p>
+                <p><strong>Director:</strong> ${movie.director || 'No disponible'}</p>
+                <p><strong>Productor:</strong> ${movie.producer || 'No disponible'}</p>
+                <p><strong>Fecha de estreno:</strong> ${formattedDate}</p>
+                <p><strong>Introducción:</strong> ${formattedCrawl}</p>
             </div>
         `;
     }
 
-    /**
-     * Agrega una película al historial de consultadas
-     */
-    addToConsultedMovies(movie) {
-        // Verificar si la película ya está en el historial
-        if (!this.consultedMovies.some(m => m.episodeId === movie.episodeId)) {
-            this.consultedMovies.push(movie);
-            // Ordenar películas por episodio
-            this.consultedMovies.sort((a, b) => a.episodeId - b.episodeId);
-        }
+    displayError(message) {
+        console.error('Error message:', message);
+        this.movieDetails.innerHTML = `
+            <div class="error-message">
+                <p><strong>Error:</strong> ${message}</p>
+                <p>Por favor intente de nuevo.</p>
+            </div>
+        `;
     }
 
-    /**
-     * Muestra el estado de carga
-     */
     showLoadingState() {
+        this.searchButton.disabled = true;
+        this.movieInput.disabled = true;
         this.movieDetails.innerHTML = `
-            <div class="loading">
+            <div class="loading-message">
                 <div class="loading-spinner"></div>
                 <p>Buscando película...</p>
             </div>
         `;
-        // Deshabilitar input y botón durante la carga
-        this.movieInput.disabled = true;
-        this.searchButton.disabled = true;
     }
 
-    /**
-     * Oculta el estado de carga
-     */
     hideLoadingState() {
-        // Habilitar input y botón
-        this.movieInput.disabled = false;
         this.searchButton.disabled = false;
-        // Limpiar el input
-        this.movieInput.value = '';
-    }
-
-    /**
-     * Maneja los errores de la aplicación
-     */
-    handleError(error) {
-        console.error('Error:', error);
-        this.movieDetails.innerHTML = `
-            <div class="error-message">
-                <p>Error: No se pudo obtener la información de la película.</p>
-                <p>Por favor intente de nuevo más tarde.</p>
-            </div>
-        `;
-    }
-
-    /**
-     * Muestra mensajes de error al usuario
-     */
-    showError(message) {
-        // Puedes personalizar cómo mostrar los errores
-        alert(message);
+        this.movieInput.disabled = false;
     }
 }
 
-// Inicializar la aplicación cuando el DOM esté completamente cargado
+// Inicializar la aplicación cuando el DOM esté cargado
 document.addEventListener('DOMContentLoaded', () => {
-    // Crear instancia de la aplicación
     window.starWarsApp = new StarWarsApp();
+    console.log('Star Wars App initialized');
 });
