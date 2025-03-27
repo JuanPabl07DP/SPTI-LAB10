@@ -28,6 +28,18 @@ public class StarWarsWebApp {
     private static final String ERROR_PREFIX = "{\"error\": \"";
     private static final String ERROR_SUFFIX = "\"}";
     private static final String INDEX_HTML = "/index.html";
+    // Constantes para los tipos MIME
+    private static final String MIME_TEXT_HTML = "text/html";
+    private static final String MIME_TEXT_CSS = "text/css";
+    private static final String MIME_APPLICATION_JS = "application/javascript";
+    private static final String MIME_APPLICATION_JSON = "application/json";
+    private static final String MIME_IMAGE_PNG = "image/png";
+    private static final String MIME_IMAGE_JPEG = "image/jpeg";
+    private static final String MIME_IMAGE_WEBP = "image/webp";
+    private static final String MIME_IMAGE_GIF = "image/gif";
+    private static final String MIME_IMAGE_SVG = "image/svg+xml";
+    private static final String MIME_IMAGE_ICON = "image/x-icon";
+    private static final String MIME_TEXT_PLAIN = "text/plain";
 
     public static byte[] getStaticFile(String path) throws IOException, URISyntaxException {
         try {
@@ -270,16 +282,16 @@ public class StarWarsWebApp {
      * Determina el tipo de contenido basado en la extensión del archivo
      */
     private static String getContentType(String path) {
-        if (path.endsWith(".html")) return "text/html";
-        if (path.endsWith(".css")) return "text/css";
-        if (path.endsWith(".js")) return "application/javascript";
-        if (path.endsWith(".json")) return "application/json";
-        if (path.endsWith(".png")) return "image/png";
-        if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
-        if (path.endsWith(".webp")) return "image/webp";
-        if (path.endsWith(".gif")) return "image/gif";
-        if (path.endsWith(".svg")) return "image/svg+xml";
-        if (path.endsWith(".ico")) return "image/x-icon";
-        return "text/plain";
+        if (path.endsWith(".html")) return MIME_TEXT_HTML;
+        if (path.endsWith(".css")) return MIME_TEXT_CSS;
+        if (path.endsWith(".js")) return MIME_APPLICATION_JS;
+        if (path.endsWith(".json")) return MIME_APPLICATION_JSON;
+        if (path.endsWith(".png")) return MIME_IMAGE_PNG;
+        if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return MIME_IMAGE_JPEG;
+        if (path.endsWith(".webp")) return MIME_IMAGE_WEBP;
+        if (path.endsWith(".gif")) return MIME_IMAGE_GIF;
+        if (path.endsWith(".svg")) return MIME_IMAGE_SVG;
+        if (path.endsWith(".ico")) return MIME_IMAGE_ICON;
+        return MIME_TEXT_PLAIN;
     }
 }
