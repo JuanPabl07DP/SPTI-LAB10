@@ -10,17 +10,17 @@ import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StarWarsWebAppTest {
+ class StarWarsWebAppTest {
     private StarWarsWebApp webApp;
 
     @BeforeEach
-    public void setUp() {
+     void setUp() {
         webApp = new StarWarsWebApp();
         webApp.staticfiles("target/classes/public");
     }
 
     @Test
-    public void testGetHtml() {
+     void testGetHtml() {
         byte[] response = null;
         try {
             response = webApp.getStaticFile("/index.html");
@@ -31,7 +31,7 @@ public class StarWarsWebAppTest {
     }
 
     @Test
-    public void testNotGetHtml() {
+     void testNotGetHtml() {
         byte[] response = null;
         try {
             response = webApp.getStaticFile("/index2.html");
