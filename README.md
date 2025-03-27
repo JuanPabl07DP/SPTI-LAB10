@@ -119,6 +119,7 @@ La arquitectura de la aplicación de consulta de películas de Star Wars sigue u
 - **Error de conexión:** Verifica tu conexión a Internet y asegúrate de que la API de SWAPI está en línea.
 
 ### 📌 Autores:
-- Juan Pablo Daza Pereira (JuanPabl07DP)
+- Juan Pablo Daza Pereira
+- Carolina Medina Acero 
 
 ### 📅 Fecha de creación: Febrero 2025
