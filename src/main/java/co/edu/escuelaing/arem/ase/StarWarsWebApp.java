@@ -44,19 +44,19 @@ public class StarWarsWebApp {
         try {
             Path filePath = buildFilePath(staticFilesPath, path);
 
-            logger.info("Intentando servir archivo: " + filePath);
+            logger.info(String.format("Intentando servir archivo: %s", filePath));
 
             if (!Files.exists(filePath)) {
-                logger.warning("Archivo no encontrado: " + filePath);
+                logger.warning(String.format("Archivo no encontrado: %s", filePath));
                 return null;
             }
 
             byte[] fileBytes = Files.readAllBytes(filePath);
-            logger.info("Sirviendo archivo: " + path);
+            logger.info(String.format("Sirviendo archivo: %s", path));
             return fileBytes;
 
         } catch (IOException e) {
-            logger.log(Level.WARNING, "Error al servir archivo: " + path, e);
+            logger.log(Level.WARNING, String.format("Error al servir archivo: %s", path), e);
             throw e;
         }
     }
@@ -216,17 +216,17 @@ public class StarWarsWebApp {
             path = path.equals("/") ? INDEX_HTML : path;
             Path filePath = buildFilePath(staticFilesPath, path);
 
-            logger.info("Intentando servir archivo: " + filePath);
+            logger.info(String.format("Intentando servir archivo: %s", filePath));
 
             if (!Files.exists(filePath)) {
-                logger.warning("Archivo no encontrado: " + filePath);
+                logger.warning(String.format("Archivo no encontrado: %s", filePath));
                 return false;
             }
 
             byte[] fileBytes = Files.readAllBytes(filePath);
             String contentType = getContentType(path);
 
-            logger.info("Sirviendo archivo: " + path + " con Content-Type: " + contentType);
+            logger.info(String.format("Sirviendo archivo: %s con Content-Type: %s", path, contentType));
 
             exchange.getResponseHeaders().set(CONTENT_TYPE_HEADER, contentType);
             exchange.sendResponseHeaders(200, fileBytes.length);
@@ -235,7 +235,7 @@ public class StarWarsWebApp {
             return true;
 
         } catch (IOException e) {
-            logger.log(Level.WARNING, "Error al servir archivo: " + path, e);
+            logger.log(Level.WARNING, String.format("Error al servir archivo: %s", path), e);
             return false;
         }
     }
