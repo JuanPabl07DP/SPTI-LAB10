@@ -84,17 +84,29 @@ class StarWarsApp {
             return;
         }
 
-        const formattedDate = movie.releaseDate || movie.release_date || 'Fecha no disponible';
-        const formattedCrawl = movie.openingCrawl || movie.opening_crawl || '';
+        // Función para sanitizar texto y prevenir XSS
+        const sanitizeHTML = (text) => {
+            if (!text) return '';
+            const element = document.createElement('div');
+            element.textContent = text;
+            return element.textContent;
+        };
+
+        const title = sanitizeHTML(movie.title) || 'Sin título';
+        const episodeId = sanitizeHTML(movie.episodeId || movie.episode_id) || 'N/A';
+        const director = sanitizeHTML(movie.director) || 'No disponible';
+        const producer = sanitizeHTML(movie.producer) || 'No disponible';
+        const releaseDate = sanitizeHTML(movie.releaseDate || movie.release_date) || 'Fecha no disponible';
+        const openingCrawl = sanitizeHTML(movie.openingCrawl || movie.opening_crawl) || '';
 
         this.movieDetails.innerHTML = `
             <div class="movie-info">
-                <h2 class="movie-title">${movie.title || 'Sin título'}</h2>
-                <p><strong>Episodio:</strong> ${movie.episodeId || movie.episode_id || 'N/A'}</p>
-                <p><strong>Director:</strong> ${movie.director || 'No disponible'}</p>
-                <p><strong>Productor:</strong> ${movie.producer || 'No disponible'}</p>
-                <p><strong>Fecha de estreno:</strong> ${formattedDate}</p>
-                <p><strong>Introducción:</strong> ${formattedCrawl}</p>
+                <h2 class="movie-title">${title}</h2>
+                <p><strong>Episodio:</strong> ${episodeId}</p>
+                <p><strong>Director:</strong> ${director}</p>
+                <p><strong>Productor:</strong> ${producer}</p>
+                <p><strong>Fecha de estreno:</strong> ${releaseDate}</p>
+                <p><strong>Introducción:</strong> ${openingCrawl}</p>
             </div>
         `;
     }
