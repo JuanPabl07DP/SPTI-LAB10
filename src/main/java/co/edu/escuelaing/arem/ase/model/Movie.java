@@ -1,4 +1,4 @@
-package co.edu.escuelaing.arem.ASE.model;
+package co.edu.escuelaing.arem.ase.model;
 
 import com.google.gson.annotations.SerializedName;
 

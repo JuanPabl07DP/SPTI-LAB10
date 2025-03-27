@@ -1,6 +1,6 @@
-package co.edu.escuelaing.arem.ASE;
+package co.edu.escuelaing.arem.ase;
 
-import co.edu.escuelaing.arem.ASE.controller.MovieController;
+import co.edu.escuelaing.arem.ase.controller.MovieController;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 

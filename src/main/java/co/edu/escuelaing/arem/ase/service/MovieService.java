@@ -1,6 +1,6 @@
-package co.edu.escuelaing.arem.ASE.service;
+package co.edu.escuelaing.arem.ase.service;
 
-import co.edu.escuelaing.arem.ASE.model.Movie;
+import co.edu.escuelaing.arem.ase.model.Movie;
 import com.google.gson.*;
 import java.io.IOException;
 import java.net.URI;
@@ -8,7 +8,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MovieService {

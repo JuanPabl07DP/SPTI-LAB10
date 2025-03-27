@@ -1,6 +1,6 @@
 // Archivo: StarWarsWebAppTest.java
 
-package co.edu.escuelaing.arem.ASE;
+package co.edu.escuelaing.arem.ase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

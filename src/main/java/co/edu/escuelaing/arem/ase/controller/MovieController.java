@@ -1,7 +1,7 @@
-package co.edu.escuelaing.arem.ASE.controller;
+package co.edu.escuelaing.arem.ase.controller;
 
-import co.edu.escuelaing.arem.ASE.service.MovieService;
-import co.edu.escuelaing.arem.ASE.model.Movie;
+import co.edu.escuelaing.arem.ase.service.MovieService;
+import co.edu.escuelaing.arem.ase.model.Movie;
 import com.google.gson.Gson;
 import java.util.logging.Level;
 import java.util.logging.Logger;
