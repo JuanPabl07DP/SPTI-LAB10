@@ -121,7 +121,6 @@ class StarWarsApp {
             movieInfo.appendChild(paragraph);
         });
 
-        // Añadir todo al contenedor de detalles
         this.movieDetails.appendChild(movieInfo);
     }
 
