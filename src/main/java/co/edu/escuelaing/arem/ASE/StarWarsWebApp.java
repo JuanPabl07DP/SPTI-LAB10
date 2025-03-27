@@ -22,6 +22,12 @@ public class StarWarsWebApp {
     private static final Logger logger = Logger.getLogger(StarWarsWebApp.class.getName());
     private static final int DEFAULT_BACKLOG = 0;
     private static String staticFilesPath = "target/classes/public";
+    // Constantes para literales de strings comunes
+    private static final String CONTENT_TYPE_HEADER = "Content-Type";
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String ERROR_PREFIX = "{\"error\": \"";
+    private static final String ERROR_SUFFIX = "\"}";
+    private static final String INDEX_HTML = "/index.html";
 
     public static byte[] getStaticFile(String path) throws IOException, URISyntaxException {
         try {
@@ -196,7 +202,7 @@ public class StarWarsWebApp {
      */
     private static boolean serveStaticFile(HttpExchange exchange, String path) {
         try {
-            path = path.equals("/") ? "/index.html" : path;
+            path = path.equals("/") ? INDEX_HTML : path;
             Path filePath = Path.of(staticFilesPath + path);
 
             logger.info("Intentando servir archivo: " + filePath);
@@ -211,7 +217,7 @@ public class StarWarsWebApp {
 
             logger.info("Sirviendo archivo: " + path + " con Content-Type: " + contentType);
 
-            exchange.getResponseHeaders().set("Content-Type", contentType);
+            exchange.getResponseHeaders().set(CONTENT_TYPE_HEADER, contentType);
             exchange.sendResponseHeaders(200, fileBytes.length);
             exchange.getResponseBody().write(fileBytes);
             exchange.getResponseBody().close();
@@ -228,7 +234,7 @@ public class StarWarsWebApp {
      */
     private static void sendResponse(HttpExchange exchange, String response) throws IOException {
         byte[] responseBytes = response.getBytes();
-        exchange.getResponseHeaders().set("Content-Type", getContentType(exchange.getRequestURI().getPath()));
+        exchange.getResponseHeaders().set(CONTENT_TYPE_HEADER, getContentType(exchange.getRequestURI().getPath()));
         exchange.sendResponseHeaders(200, responseBytes.length);
         exchange.getResponseBody().write(responseBytes);
         exchange.getResponseBody().close();
@@ -238,8 +244,8 @@ public class StarWarsWebApp {
      * Envía una respuesta de error
      */
     private static void sendErrorResponse(HttpExchange exchange, String message) throws IOException {
-        String response = "{\"error\": \"" + message + "\"}";
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        String response = ERROR_PREFIX + message + ERROR_SUFFIX;
+        exchange.getResponseHeaders().set(CONTENT_TYPE_HEADER, APPLICATION_JSON);
         byte[] responseBytes = response.getBytes();
         exchange.sendResponseHeaders(500, responseBytes.length);
         exchange.getResponseBody().write(responseBytes);
