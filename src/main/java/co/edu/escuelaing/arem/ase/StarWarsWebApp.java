@@ -42,7 +42,7 @@ public class StarWarsWebApp {
 
     public static byte[] getStaticFile(String path) throws IOException {
         try {
-            Path filePath = Path.of(staticFilesPath + path);
+            Path filePath = buildFilePath(staticFilesPath, path);
 
             logger.info("Intentando servir archivo: " + filePath);
 
@@ -214,7 +214,7 @@ public class StarWarsWebApp {
     private static boolean serveStaticFile(HttpExchange exchange, String path) {
         try {
             path = path.equals("/") ? INDEX_HTML : path;
-            Path filePath = Path.of(staticFilesPath + path);
+            Path filePath = buildFilePath(staticFilesPath, path);
 
             logger.info("Intentando servir archivo: " + filePath);
 
@@ -275,6 +275,18 @@ public class StarWarsWebApp {
      */
     private static void sendMethodNotAllowedResponse(HttpExchange exchange) throws IOException {
         exchange.sendResponseHeaders(405, -1);
+    }
+
+    private static Path buildFilePath(String basePath, String filePath) {
+        // Garantiza que el path comience con / para consistencia
+        if (!filePath.startsWith("/")) {
+            filePath = "/" + filePath;
+        }
+
+        // Elimina el / inicial para la concatenación con el directorio base
+        String normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+
+        return Path.of(basePath).resolve(normalizedPath);
     }
 
     /**
