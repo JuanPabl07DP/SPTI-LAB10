@@ -182,25 +182,46 @@ class StarWarsApp {
         const consultedMoviesContainer = document.querySelector('.consulted-movies-container');
         console.log('Contenedor encontrado:', consultedMoviesContainer);
 
+        // Limpiar el contenedor
+        while (consultedMoviesContainer.firstChild) {
+            consultedMoviesContainer.removeChild(consultedMoviesContainer.firstChild);
+        }
+
         if (this.consultedMovies.length === 0) {
             console.log('No hay películas consultadas');
-            consultedMoviesContainer.innerHTML = '<p>No se han consultado películas aún.</p>';
+            const noMoviesMessage = document.createElement('p');
+            noMoviesMessage.textContent = 'No se han consultado películas aún.';
+            consultedMoviesContainer.appendChild(noMoviesMessage);
             return;
         }
 
         try {
-            // Cambiamos a un método más robusto de renderizado
-            const moviesHTML = this.consultedMovies.map((movie, index) => `
-            <div class="consulted-movie">
-                <h3>Película ${index + 1}</h3>
-                <pre class="consulted-movies-json">${JSON.stringify(movie, null, 2)}</pre>
-            </div>
-        `).join('');
+            // Crear elementos DOM de forma segura
+            this.consultedMovies.forEach((movie, index) => {
+                const movieDiv = document.createElement('div');
+                movieDiv.className = 'consulted-movie';
 
-            consultedMoviesContainer.innerHTML = moviesHTML;
+                const title = document.createElement('h3');
+                title.textContent = `Película ${index + 1}`;
+                movieDiv.appendChild(title);
+
+                const pre = document.createElement('pre');
+                pre.className = 'consulted-movies-json';
+
+                // Sanitizar el contenido JSON
+                const safeJson = document.createTextNode(JSON.stringify(movie, null, 2));
+                pre.appendChild(safeJson);
+
+                movieDiv.appendChild(pre);
+                consultedMoviesContainer.appendChild(movieDiv);
+            });
+
             console.log('Contenido actualizado exitosamente');
         } catch (error) {
             console.error('Error al actualizar la lista:', error);
+            const errorMessage = document.createElement('p');
+            errorMessage.textContent = `Error al actualizar la lista: ${error.message}`;
+            consultedMoviesContainer.appendChild(errorMessage);
         }
     }
 }
