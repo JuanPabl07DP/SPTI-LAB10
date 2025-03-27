@@ -84,31 +84,45 @@ class StarWarsApp {
             return;
         }
 
-        // Función para sanitizar texto y prevenir XSS
-        const sanitizeHTML = (text) => {
-            if (!text) return '';
-            const element = document.createElement('div');
-            element.textContent = text;
-            return element.textContent;
-        };
+        // Limpiar el contenedor de detalles
+        while (this.movieDetails.firstChild) {
+            this.movieDetails.removeChild(this.movieDetails.firstChild);
+        }
 
-        const title = sanitizeHTML(movie.title) || 'Sin título';
-        const episodeId = sanitizeHTML(movie.episodeId || movie.episode_id) || 'N/A';
-        const director = sanitizeHTML(movie.director) || 'No disponible';
-        const producer = sanitizeHTML(movie.producer) || 'No disponible';
-        const releaseDate = sanitizeHTML(movie.releaseDate || movie.release_date) || 'Fecha no disponible';
-        const openingCrawl = sanitizeHTML(movie.openingCrawl || movie.opening_crawl) || '';
+        // Crear el contenedor principal
+        const movieInfo = document.createElement('div');
+        movieInfo.className = 'movie-info';
 
-        this.movieDetails.innerHTML = `
-            <div class="movie-info">
-                <h2 class="movie-title">${title}</h2>
-                <p><strong>Episodio:</strong> ${episodeId}</p>
-                <p><strong>Director:</strong> ${director}</p>
-                <p><strong>Productor:</strong> ${producer}</p>
-                <p><strong>Fecha de estreno:</strong> ${releaseDate}</p>
-                <p><strong>Introducción:</strong> ${openingCrawl}</p>
-            </div>
-        `;
+        // Título de la película
+        const title = document.createElement('h2');
+        title.className = 'movie-title';
+        title.textContent = movie.title || 'Sin título';
+        movieInfo.appendChild(title);
+
+        // Crear y añadir cada detalle de la película
+        const details = [
+            { label: 'Episodio', value: movie.episodeId || movie.episode_id || 'N/A' },
+            { label: 'Director', value: movie.director || 'No disponible' },
+            { label: 'Productor', value: movie.producer || 'No disponible' },
+            { label: 'Fecha de estreno', value: movie.releaseDate || movie.release_date || 'Fecha no disponible' },
+            { label: 'Introducción', value: movie.openingCrawl || movie.opening_crawl || '' }
+        ];
+
+        details.forEach(detail => {
+            const paragraph = document.createElement('p');
+
+            const strong = document.createElement('strong');
+            strong.textContent = `${detail.label}: `;
+            paragraph.appendChild(strong);
+
+            // Añadir el valor como texto plano
+            paragraph.appendChild(document.createTextNode(detail.value));
+
+            movieInfo.appendChild(paragraph);
+        });
+
+        // Añadir todo al contenedor de detalles
+        this.movieDetails.appendChild(movieInfo);
     }
 
     displayError(message) {
