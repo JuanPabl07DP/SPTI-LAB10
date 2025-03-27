@@ -278,15 +278,12 @@ public class StarWarsWebApp {
     }
 
     private static Path buildFilePath(String basePath, String filePath) {
-        // Garantiza que el path comience con / para consistencia
-        if (!filePath.startsWith("/")) {
-            filePath = "/" + filePath;
-        }
+        // Convertir a Path para manejo correcto según el sistema
+        Path base = Path.of(basePath);
+        Path relativePath = Path.of(filePath.startsWith("/") ? filePath.substring(1) : filePath);
 
-        // Elimina el / inicial para la concatenación con el directorio base
-        String normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
-
-        return Path.of(basePath).resolve(normalizedPath);
+        // Resolver la ruta relativa contra la base
+        return base.resolve(relativePath);
     }
 
     /**
