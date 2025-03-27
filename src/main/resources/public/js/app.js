@@ -127,12 +127,35 @@ class StarWarsApp {
 
     displayError(message) {
         console.error('Error message:', message);
-        this.movieDetails.innerHTML = `
-            <div class="error-message">
-                <p><strong>Error:</strong> ${message}</p>
-                <p>Por favor intente de nuevo.</p>
-            </div>
-        `;
+
+        // Limpiar el contenedor de detalles
+        while (this.movieDetails.firstChild) {
+            this.movieDetails.removeChild(this.movieDetails.firstChild);
+        }
+
+        // Crear el contenedor de error
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+
+        // Crear y configurar el mensaje de error
+        const errorParagraph = document.createElement('p');
+        const strongElement = document.createElement('strong');
+        strongElement.textContent = 'Error: ';
+        errorParagraph.appendChild(strongElement);
+
+        // Añadir el mensaje de error como texto plano
+        errorParagraph.appendChild(document.createTextNode(message));
+
+        // Crear el mensaje adicional
+        const retryParagraph = document.createElement('p');
+        retryParagraph.textContent = 'Por favor intente de nuevo.';
+
+        // Ensamblar la estructura
+        errorDiv.appendChild(errorParagraph);
+        errorDiv.appendChild(retryParagraph);
+
+        // Añadir al DOM
+        this.movieDetails.appendChild(errorDiv);
     }
 
     showLoadingState() {
