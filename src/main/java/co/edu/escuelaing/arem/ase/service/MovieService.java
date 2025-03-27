@@ -31,7 +31,7 @@ public class MovieService {
 
             // Construir la URL específica para la película
             String url = SWAPI_URL + "?format=json";
-            logger.info("Requesting URL: " + url);
+            logger.info(String.format("Requesting URL: %s", url));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -42,12 +42,12 @@ public class MovieService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
-                logger.severe("Error response from API: " + response.statusCode());
-                throw new MovieServiceException("Error del servidor: " + response.statusCode());
+                logger.severe(String.format("Error response from API: %d", response.statusCode()));
+                throw new MovieServiceException(String.format("Error del servidor: %d", response.statusCode()));
             }
 
             String responseBody = response.body();
-            logger.info("API Response: " + responseBody);
+            logger.info(String.format("API Response: %s", responseBody));
 
             JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
             JsonArray results = jsonResponse.getAsJsonArray("results");
@@ -58,32 +58,32 @@ public class MovieService {
                 JsonObject movieJson = element.getAsJsonObject();
                 if (movieJson.has("episode_id")) {
                     int episodeId = movieJson.get("episode_id").getAsInt();
-                    logger.info("Checking episode_id: " + episodeId);
+                    logger.info(String.format("Checking episode_id: %d", episodeId));
 
                     if (episodeId == searchId) {
                         Movie movie = gson.fromJson(movieJson, Movie.class);
-                        logger.info("Found movie: " + movie);
+                        logger.info(String.format("Found movie: %s", movie));
                         return movie;
                     }
                 }
             }
 
-            logger.warning("Movie not found with episode_id: " + id);
+            logger.warning(String.format("Movie not found with episode_id: %s", id));
             throw new MovieNotFoundException("Película no encontrada");
 
         } catch (IOException e) {
-            logger.severe("IO Error: " + e.getMessage());
+            logger.severe(String.format("IO Error: %s", e.getMessage()));
             throw new MovieServiceException("Error de conexión");
         } catch (InterruptedException e) {
-            logger.severe("Request interrupted: " + e.getMessage());
+            logger.severe(String.format("Request interrupted: %s", e.getMessage()));
             Thread.currentThread().interrupt();
             throw new MovieServiceException("La solicitud fue interrumpida");
         } catch (JsonParseException e) {
-            logger.severe("JSON Parse error: " + e.getMessage());
+            logger.severe(String.format("JSON Parse error: %s", e.getMessage()));
             throw new MovieServiceException("Error al procesar la respuesta");
         } catch (Exception e) {
-            logger.severe("Unexpected error: " + e.getMessage());
-            throw new MovieServiceException("Error inesperado: " + e.getMessage());
+            logger.severe(String.format("Unexpected error: %s", e.getMessage()));
+            throw new MovieServiceException(String.format("Error inesperado: %s", e.getMessage()));
         }
     }
 
