@@ -41,7 +41,7 @@ public class StarWarsWebApp {
     private static final String MIME_IMAGE_ICON = "image/x-icon";
     private static final String MIME_TEXT_PLAIN = "text/plain";
 
-    public static byte[] getStaticFile(String path) throws IOException, URISyntaxException {
+    public static byte[] getStaticFile(String path) throws IOException {
         try {
             Path filePath = Path.of(staticFilesPath + path);
 
