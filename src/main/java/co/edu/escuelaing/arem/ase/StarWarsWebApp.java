@@ -270,17 +270,23 @@ public class StarWarsWebApp {
             path = path.equals("/") ? INDEX_HTML : path;
             Path filePath = buildFilePath(staticFilesPath, path);
 
-            logger.info(String.format("Intentando servir archivo: %s", filePath));
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info(String.format("Intentando servir archivo: %s", filePath));
+            }
 
             if (!Files.exists(filePath)) {
-                logger.warning(String.format("Archivo no encontrado: %s", filePath));
+                if (logger.isLoggable(Level.WARNING)) {
+                    logger.warning(String.format("Archivo no encontrado: %s", filePath));
+                }
                 return false;
             }
 
             byte[] fileBytes = Files.readAllBytes(filePath);
             String contentType = getContentType(path);
 
-            logger.info(String.format("Sirviendo archivo: %s con Content-Type: %s", path, contentType));
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info(String.format("Sirviendo archivo: %s con Content-Type: %s", path, contentType));
+            }
 
             exchange.getResponseHeaders().set(CONTENT_TYPE_HEADER, contentType);
             exchange.sendResponseHeaders(200, fileBytes.length);
@@ -289,7 +295,9 @@ public class StarWarsWebApp {
             return true;
 
         } catch (IOException e) {
-            logger.log(Level.WARNING, String.format("Error al servir archivo: %s", path), e);
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, String.format("Error al servir archivo: %s", path), e);
+            }
             return false;
         }
     }
