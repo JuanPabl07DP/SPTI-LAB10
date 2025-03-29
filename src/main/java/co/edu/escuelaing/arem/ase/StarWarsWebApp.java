@@ -122,7 +122,10 @@ public class StarWarsWebApp {
             throw new IllegalArgumentException("La ruta de archivos estáticos no puede estar vacía");
         }
         staticFilesPath = path;
-        logger.info("Archivos estáticos configurados en: " + path);
+
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(String.format("Archivos estáticos configurados en: %s", path));
+        }
     }
 
     /**
