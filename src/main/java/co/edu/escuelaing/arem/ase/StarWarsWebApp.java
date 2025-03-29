@@ -42,27 +42,39 @@ public class StarWarsWebApp {
 
     public static byte[] getStaticFile(String path) throws IOException {
         if (path == null || path.isEmpty()) {
-            logger.warning("La ruta del archivo es nula o vacía.");
-            return null;
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.warning("La ruta del archivo es nula o vacía.");
+            }
+            return new byte[0];
         }
 
         try {
             Path filePath = buildFilePath(staticFilesPath, path);
 
-            logger.info(String.format("Intentando servir archivo: %s", filePath));
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info(String.format("Intentando servir archivo: %s", filePath));
+            }
 
             if (!Files.exists(filePath)) {
-                logger.warning(String.format("Archivo no encontrado: %s", filePath));
-                return null;
+                if (logger.isLoggable(Level.WARNING)) {
+                    logger.warning(String.format("Archivo no encontrado: %s", filePath));
+                }
+                return new byte[0];
             }
 
             byte[] fileBytes = Files.readAllBytes(filePath);
-            logger.info(String.format("Sirviendo archivo: %s", path));
+
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info(String.format("Sirviendo archivo: %s", path));
+            }
+
             return fileBytes;
 
         } catch (IOException e) {
-            logger.log(Level.WARNING, String.format("Error al servir archivo: %s", path), e);
-            throw e;  // Propaga la excepción para que el llamador maneje el error
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, String.format("Error al servir archivo: %s", path), e);
+            }
+            throw e;
         }
     }
 
