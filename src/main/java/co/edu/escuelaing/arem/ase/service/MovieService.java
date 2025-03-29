@@ -26,91 +26,78 @@ public class MovieService {
     }
 
     public Movie getMovieById(String id) throws MovieServiceException {
+        validateId(id);
+        String responseBody = fetchDataFromApi();
+        return findMovieInResponse(responseBody, id);
+    }
+
+    private String fetchDataFromApi() throws MovieServiceException {
         try {
-            validateId(id);
-
-            // Construir la URL específica para la película
             String url = SWAPI_URL + "?format=json";
+            logInfo("Requesting URL: %s", url);
 
-            // Invocar el logging solo si el nivel INFO está habilitado
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info(String.format("Requesting URL: %s", url));
-            }
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
-
+            HttpRequest request = buildRequest(url);
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (response.statusCode() != 200) {
-                if (logger.isLoggable(Level.SEVERE)) {
-                    logger.severe(String.format("Error response from API: %d", response.statusCode()));
-                }
-                throw new MovieServiceException(String.format("Error del servidor: %d", response.statusCode()));
-            }
+            validateResponse(response);
 
             String responseBody = response.body();
+            logInfo("API Response: %s", responseBody);
 
-            // Evitar el procesamiento costoso del log si no es necesario
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info(String.format("API Response: %s", responseBody));
-            }
+            return responseBody;
+        } catch (IOException e) {
+            logSevere("IO Error: %s", e.getMessage());
+            throw new MovieServiceException("Error de conexión", e);
+        } catch (InterruptedException e) {
+            logSevere("Request interrupted: %s", e.getMessage());
+            Thread.currentThread().interrupt();
+            throw new MovieServiceException("La solicitud fue interrumpida", e);
+        }
+    }
 
+    private HttpRequest buildRequest(String url) {
+        return HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+    }
+
+    private void validateResponse(HttpResponse<String> response) throws MovieServiceException {
+        if (response.statusCode() != 200) {
+            logSevere("Error response from API: %d", response.statusCode());
+            throw new MovieServiceException(String.format("Error del servidor: %d", response.statusCode()));
+        }
+    }
+
+    private Movie findMovieInResponse(String responseBody, String id) throws MovieServiceException {
+        try {
             JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
             JsonArray results = jsonResponse.getAsJsonArray("results");
-
             int searchId = Integer.parseInt(id);
 
             for (JsonElement element : results) {
                 JsonObject movieJson = element.getAsJsonObject();
                 if (movieJson.has("episode_id")) {
                     int episodeId = movieJson.get("episode_id").getAsInt();
-
-                    if (logger.isLoggable(Level.INFO)) {
-                        logger.info(String.format("Checking episode_id: %d", episodeId));
-                    }
+                    logInfo("Checking episode_id: %d", episodeId);
 
                     if (episodeId == searchId) {
                         Movie movie = gson.fromJson(movieJson, Movie.class);
-
-                        if (logger.isLoggable(Level.INFO)) {
-                            logger.info(String.format("Found movie: %s", movie));
-                        }
-
+                        logInfo("Found movie: %s", movie);
                         return movie;
                     }
                 }
             }
 
-            if (logger.isLoggable(Level.WARNING)) {
-                logger.warning(String.format("Movie not found with episode_id: %s", id));
-            }
-
+            logWarning("Movie not found with episode_id: %s", id);
             throw new MovieNotFoundException(String.format("Película con ID %s no encontrada", id));
 
-        } catch (IOException e) {
-            if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe(String.format("IO Error: %s", e.getMessage()));
-            }
-            throw new MovieServiceException(String.format("Error de conexión al buscar película con ID %s", id), e);
-        } catch (InterruptedException e) {
-            if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe(String.format("Request interrupted: %s", e.getMessage()));
-            }
-            Thread.currentThread().interrupt();
-            throw new MovieServiceException(String.format("La solicitud para la película con ID %s fue interrumpida", id), e);
         } catch (JsonParseException e) {
-            if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe(String.format("JSON Parse error: %s", e.getMessage()));
-            }
+            logSevere("JSON Parse error: %s", e.getMessage());
             throw new MovieServiceException(String.format("Error al procesar la respuesta para película con ID %s", id), e);
         } catch (Exception e) {
-            if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe(String.format("Unexpected error: %s", e.getMessage()));
-            }
+            logSevere("Unexpected error: %s", e.getMessage());
             throw new MovieServiceException(String.format("Error inesperado al buscar película con ID %s", id), e);
         }
     }
@@ -123,6 +110,24 @@ public class MovieService {
             }
         } catch (NumberFormatException e) {
             throw new MovieServiceException("ID inválido");
+        }
+    }
+
+    private void logInfo(String format, Object... args) {
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(String.format(format, args));
+        }
+    }
+
+    private void logWarning(String format, Object... args) {
+        if (logger.isLoggable(Level.WARNING)) {
+            logger.warning(String.format(format, args));
+        }
+    }
+
+    private void logSevere(String format, Object... args) {
+        if (logger.isLoggable(Level.SEVERE)) {
+            logger.severe(String.format(format, args));
         }
     }
 }
