@@ -179,7 +179,10 @@ public class StarWarsWebApp {
         try {
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
-            logger.info("Recibida petición: " + method + " " + path);
+
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info(String.format("Recibida petición: %s %s", method, path));
+            }
 
             if ("GET".equals(method)) {
                 handleGetRequest(exchange, path);
@@ -187,7 +190,9 @@ public class StarWarsWebApp {
                 sendMethodNotAllowedResponse(exchange);
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al procesar la petición", e);
+            if (logger.isLoggable(Level.SEVERE)) {
+                logger.log(Level.SEVERE, "Error al procesar la petición", e);
+            }
             sendErrorResponse(exchange, "Internal Server Error");
         } finally {
             exchange.close();
