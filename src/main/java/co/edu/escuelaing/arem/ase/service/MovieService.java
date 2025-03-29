@@ -69,21 +69,21 @@ public class MovieService {
             }
 
             logger.warning(String.format("Movie not found with episode_id: %s", id));
-            throw new MovieNotFoundException(String.format("Película con ID %s no encontrada", id));
+            throw new MovieNotFoundException("Película no encontrada");
 
         } catch (IOException e) {
-            logger.severe(String.format("IO Error while fetching movie with ID %s: %s", id, e.getMessage()));
-            throw new MovieServiceException(String.format("Error de conexión al buscar película con ID %s: %s", id, e.getMessage()), e);
+            logger.severe(String.format("IO Error: %s", e.getMessage()));
+            throw new MovieServiceException("Error de conexión");
         } catch (InterruptedException e) {
-            logger.severe(String.format("Request interrupted while fetching movie with ID %s: %s", id, e.getMessage()));
+            logger.severe(String.format("Request interrupted: %s", e.getMessage()));
             Thread.currentThread().interrupt();
-            throw new MovieServiceException(String.format("La solicitud para la película con ID %s fue interrumpida: %s", id, e.getMessage()), e);
+            throw new MovieServiceException("La solicitud fue interrumpida");
         } catch (JsonParseException e) {
-            logger.severe(String.format("JSON Parse error for movie with ID %s: %s", id, e.getMessage()));
-            throw new MovieServiceException(String.format("Error al procesar la respuesta para película con ID %s: %s", id, e.getMessage()), e);
+            logger.severe(String.format("JSON Parse error: %s", e.getMessage()));
+            throw new MovieServiceException("Error al procesar la respuesta");
         } catch (Exception e) {
-            logger.severe(String.format("Unexpected error while fetching movie with ID %s: %s", id, e.getMessage()));
-            throw new MovieServiceException(String.format("Error inesperado al buscar película con ID %s: %s", id, e.getMessage()), e);
+            logger.severe(String.format("Unexpected error: %s", e.getMessage()));
+            throw new MovieServiceException(String.format("Error inesperado: %s", e.getMessage()));
         }
     }
 
