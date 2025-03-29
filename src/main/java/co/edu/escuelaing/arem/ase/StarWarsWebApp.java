@@ -138,13 +138,17 @@ public class StarWarsWebApp {
             server.createContext("/", StarWarsWebApp::handleRequest);
             server.setExecutor(null);
             server.start();
-            logger.info("Servidor iniciado en el puerto " + port);
+
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info(String.format("Servidor iniciado en el puerto %d", port));
+            }
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error al iniciar el servidor", e);
+            if (logger.isLoggable(Level.SEVERE)) {
+                logger.log(Level.SEVERE, "Error al iniciar el servidor", e);
+            }
             throw new RuntimeException("No se pudo iniciar el servidor", e);
         }
     }
-
     /**
      * Maneja las peticiones HTTP
      */
