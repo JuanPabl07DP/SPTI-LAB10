@@ -13,6 +13,8 @@ public class MovieController {
     private static final MovieService movieService = new MovieService();
     private static final Gson gson = new Gson();
     private static final Logger logger = Logger.getLogger(MovieController.class.getName());
+    private MovieController(){
+    }
 
     /**
      * Obtiene una película por su ID
