@@ -27,15 +27,10 @@ public class MovieController {
                 return createErrorResponse("El ID de la película no puede estar vacío");
             }
 
-            int movieId;
-            try {
-                movieId = Integer.parseInt(id);
-                // Cambiar de 1-6 a 1-7
-                if (movieId < 1 || movieId > 7) {
-                    return createErrorResponse("El ID de la película debe estar entre 1 y 7");
-                }
-            } catch (NumberFormatException e) {
-                return createErrorResponse("El ID de la película debe ser un número válido");
+            // Validamos y convertimos el ID
+            String validationError = validateMovieId(id);
+            if (validationError != null) {
+                return validationError;
             }
 
             Movie movie = movieService.getMovieById(id);
@@ -47,6 +42,18 @@ public class MovieController {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error al obtener la película", e);
             return createErrorResponse("Error al obtener la información de la película");
+        }
+    }
+
+    private static String validateMovieId(String id) {
+        try {
+            int movieId = Integer.parseInt(id);
+            if (movieId < 1 || movieId > 7) {
+                return createErrorResponse("El ID de la película debe estar entre 1 y 7");
+            }
+            return null; // ID válido
+        } catch (NumberFormatException e) {
+            return createErrorResponse("El ID de la película debe ser un número válido");
         }
     }
 
