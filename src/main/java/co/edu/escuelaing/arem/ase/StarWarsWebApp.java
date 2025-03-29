@@ -146,7 +146,30 @@ public class StarWarsWebApp {
             if (logger.isLoggable(Level.SEVERE)) {
                 logger.log(Level.SEVERE, "Error al iniciar el servidor", e);
             }
-            throw new RuntimeException("No se pudo iniciar el servidor", e);
+            throw new ServerInitializationException(String.format("No se pudo iniciar el servidor en el puerto %d", port), e);
+        }
+    }
+
+
+    /**
+     * Excepción que se lanza cuando hay problemas al iniciar o configurar el servidor
+     */
+    public static class ServerInitializationException extends RuntimeException {
+        /**
+         * Constructor con mensaje y causa
+         * @param message mensaje de error
+         * @param cause causa original del error
+         */
+        public ServerInitializationException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        /**
+         * Constructor con solo mensaje
+         * @param message mensaje de error
+         */
+        public ServerInitializationException(String message) {
+            super(message);
         }
     }
     /**
