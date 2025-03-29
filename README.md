@@ -122,4 +122,4 @@ La arquitectura de la aplicación de consulta de películas de Star Wars sigue u
 - Juan Pablo Daza Pereira
 - Carolina Medina Acero 
 
-### 📅 Fecha de creación: Febrero 2025
+### 📅 Fecha de creación: Abril 2025
