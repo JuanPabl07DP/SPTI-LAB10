@@ -41,6 +41,11 @@ public class StarWarsWebApp {
     private static final String MIME_TEXT_PLAIN = "text/plain";
 
     public static byte[] getStaticFile(String path) throws IOException {
+        if (path == null || path.isEmpty()) {
+            logger.warning("La ruta del archivo es nula o vacía.");
+            return null;
+        }
+
         try {
             Path filePath = buildFilePath(staticFilesPath, path);
 
@@ -57,7 +62,7 @@ public class StarWarsWebApp {
 
         } catch (IOException e) {
             logger.log(Level.WARNING, String.format("Error al servir archivo: %s", path), e);
-            throw e;
+            throw e;  // Propaga la excepción para que el llamador maneje el error
         }
     }
 
