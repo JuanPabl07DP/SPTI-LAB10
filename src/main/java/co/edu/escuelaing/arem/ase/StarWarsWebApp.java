@@ -108,7 +108,9 @@ public class StarWarsWebApp {
      */
     public static void get(String path, HttpHandler handler) {
         GET_ROUTES.put(path, handler);
-        logger.info("Ruta GET registrada: " + path);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(String.format("Ruta GET registrada: %s", path));
+        }
     }
 
     /**
